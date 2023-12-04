@@ -4,7 +4,8 @@
 
 uses
   System.Classes,
-  System.SysUtils;
+  System.SysUtils,
+  System.Math;
 
 type
   TColor = (R, G, B);
@@ -19,8 +20,9 @@ var
   MaxCount: array[TColor] of Integer = (12, 13, 14);
   GamePossible: Boolean;
   SumOfPossibleGameIds: Integer;
-  SumOfPowerOfSets: Integer absolute SumOfPossibleGameIds;
-  CubeCount: array[TColor] of Integer;
+  MinCubeCount: array[TColor] of Integer;
+  PowerOfSets: Integer;
+  SumOfPowerOfSets: Integer;
 
 function CubeCountInSet(S: String; Color: TColor): Integer;
 var
@@ -68,59 +70,20 @@ begin
     begin
       Sets.DelimitedText := Input.ValueFromIndex[GameId - 1];
       for AColor := Low(AColor) to High(AColor) do
-        CubeCount[AColor] := 0;
+        MinCubeCount[AColor] := 0;
       for ASet in Sets do
         for AColor := Low(AColor) to High(AColor) do
-          Inc(CubeCount[AColor], CubeCountInSet(ASet, AColor));
-
-
-          
-      for ASet in Sets do
-        for AColor := Low(AColor) to High(AColor) do
-          if CubeCountInSet(ASet, AColor) > MaxCount[AColor] then
-            GamePossible := False;
-
-      Inc(SumOfPossibleGameIds, GameId);
+          MinCubeCount[AColor] := Max(MinCubeCount[AColor],
+            CubeCountInSet(ASet, AColor));
+      PowerOfSets := 1;
+      for AColor := Low(AColor) to High(AColor) do
+        PowerOfSets := PowerOfSets * MinCubeCount[AColor];
+      Inc(SumOfPowerOfSets, PowerOfSets);
     end;
-
-
-    WriteLn('Part II: ');
+    WriteLn('Part II: ', SumOfPowerOfSets);
   finally
     Sets.Free;
     Input.Free;
   end;
   ReadLn;
 end.
-
-
-3287 is too high
-132 is too low
-2119 is too low
-
-
-  CubeCount: array[TColor] of Integer;
-
-      if GameId = 0 then
-      begin
-        WriteLn(Input.ValueFromIndex[0]);
-        for ASet in Sets do
-          WriteLn(ASet);
-        for ASet in Sets do
-          for AColor := Low(AColor) to High(AColor) do
-            WriteLn(ColorNames[AColor], ':', CubeCountInSet(ASet, AColor));
-      end;
-    
-      for AColor := Low(AColor) to High(AColor) do
-        CubeCount[AColor] := 0;
-      for ASet in Sets do
-        for AColor := Low(AColor) to High(AColor) do
-          Inc(CubeCount[AColor], CubeCountInSet(ASet, AColor));
-      for ASet in Sets do
-        for AColor := Low(AColor) to High(AColor) do
-          if CubeCountInSet(ASet, AColor) > MaxCount[AColor] then
-            GamePossible := False;
-{
-        for AColor := Low(AColor) to High(AColor) do
-          if CubeCount[AColor] > MaxCount[AColor] then
-            GamePossible := False;
-    
