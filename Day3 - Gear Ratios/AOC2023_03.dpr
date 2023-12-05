@@ -41,23 +41,14 @@ begin
   EndOfPartNumber := False;
   while not EndOfPartNumber do
   begin
-    if (X > 0)    and (Y > 0)    and IsSymbol(X - 1, Y - 1) then
-      SymbolAdjacent := True;
-    if (X > 0)                   and IsSymbol(X - 1, Y + 0) then
-      SymbolAdjacent := True;
-    if (X > 0)    and (Y < MaxY) and IsSymbol(X - 1, Y + 1) then
-      SymbolAdjacent := True;
-
-    if                (Y > 0)    and IsSymbol(X + 0, Y - 1) then
-      SymbolAdjacent := True;
-    if                (Y < MaxY) and IsSymbol(X + 0, Y + 1) then
-      SymbolAdjacent := True;
-
-    if (X < MaxX) and (Y > 0)    and IsSymbol(X + 1, Y - 1) then
-      SymbolAdjacent := True;
-    if (X < MaxX)                and IsSymbol(X + 1, Y + 0) then
-      SymbolAdjacent := True;
-    if (X < MaxX) and (Y < MaxY) and IsSymbol(X + 1, Y + 1) then
+    if (X > 0)    and (Y > 0)    and IsSymbol(X - 1, Y - 1) or
+       (X > 0)                   and IsSymbol(X - 1, Y + 0) or
+       (X > 0)    and (Y < MaxY) and IsSymbol(X - 1, Y + 1) or
+                      (Y > 0)    and IsSymbol(X + 0, Y - 1) or
+                      (Y < MaxY) and IsSymbol(X + 0, Y + 1) or
+       (X < MaxX) and (Y > 0)    and IsSymbol(X + 1, Y - 1) or
+       (X < MaxX)                and IsSymbol(X + 1, Y + 0) or
+       (X < MaxX) and (Y < MaxY) and IsSymbol(X + 1, Y + 1) then
       SymbolAdjacent := True;
     if IsPartNumber(X, Y) and (X < MaxX) and IsPartNumber(X + 1, Y) then
     begin
