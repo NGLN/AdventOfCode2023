@@ -8,25 +8,25 @@ uses
 
 var
   Input: TStringList;
-  X: Integer;
-  Y: Integer;
   MaxX: Integer;
   MaxY: Integer;
-  SumOfPartNumbers: Integer;
 
-function Data(AX, AY: Integer): Char;
+function Data(X, Y: Integer): Char;
 begin
-  Result := Input[AY][AX + 1];
+  if (X < 0) or (X > MaxX) or (Y < 0) or (Y > MaxY) then
+    Result := '.'
+  else
+    Result := Input[Y][X + 1];
 end;
 
-function IsPartNumber(AX, AY: Integer): Boolean;
+function IsPartNumber(X, Y: Integer): Boolean;
 begin
-  Result := CharInSet(Data(AX, AY), ['0'..'9']);
+  Result := CharInSet(Data(X, Y), ['0'..'9']);
 end;
 
-function IsSymbol(AX, AY: Integer): Boolean;
+function IsSymbol(X, Y: Integer): Boolean;
 begin
-  Result := not CharInSet(Data(AX, AY), ['0'..'9', '.']);
+  Result := not CharInSet(Data(X, Y), ['0'..'9', '.']);
 end;
 
 function PartNumber(var X: Integer; Y: Integer): Integer;
@@ -41,14 +41,14 @@ begin
   EndOfPartNumber := False;
   while not EndOfPartNumber do
   begin
-    if (X > 0)    and (Y > 0)    and IsSymbol(X - 1, Y - 1) or
-       (X > 0)                   and IsSymbol(X - 1, Y + 0) or
-       (X > 0)    and (Y < MaxY) and IsSymbol(X - 1, Y + 1) or
-                      (Y > 0)    and IsSymbol(X + 0, Y - 1) or
-                      (Y < MaxY) and IsSymbol(X + 0, Y + 1) or
-       (X < MaxX) and (Y > 0)    and IsSymbol(X + 1, Y - 1) or
-       (X < MaxX)                and IsSymbol(X + 1, Y + 0) or
-       (X < MaxX) and (Y < MaxY) and IsSymbol(X + 1, Y + 1) then
+    if IsSymbol(X - 1, Y - 1) or
+       IsSymbol(X - 1, Y + 0) or
+       IsSymbol(X - 1, Y + 1) or
+       IsSymbol(X + 0, Y - 1) or
+       IsSymbol(X + 0, Y + 1) or
+       IsSymbol(X + 1, Y - 1) or
+       IsSymbol(X + 1, Y + 0) or
+       IsSymbol(X + 1, Y + 1) then
       SymbolAdjacent := True;
     if IsPartNumber(X, Y) and (X < MaxX) and IsPartNumber(X + 1, Y) then
     begin
@@ -61,6 +61,61 @@ begin
   if not SymbolAdjacent then
     Result := 0;
 end;
+
+function FindPartNumber(X, Y: Integer): Integer;
+begin
+  if IsPartNumber(X, Y) then
+    while IsPartNumber(X - 1, Y) do
+      Dec(X);
+  Result := PartNumber(X, Y);
+end;
+
+function FindGearRatio(X, Y: Integer; var Count, Ratio: Integer): Boolean;
+var
+  Nr: Integer;
+begin
+  Nr := FindPartNumber(X, Y);
+  Result := Nr > 0;
+  if Result then
+  begin
+    Inc(Count);
+    Ratio := Ratio * Nr;
+  end;
+end;
+
+function GearRatio(X, Y: Integer): Integer;
+var
+  Count: Integer;
+begin
+  Count := 0;
+  Result := 1;
+  if not   FindGearRatio(X - 1, Y - 1, Count, Result) then
+  begin
+    if not FindGearRatio(X    , Y - 1, Count, Result) then
+           FindGearRatio(X + 1, Y - 1, Count, Result);
+  end
+  else
+    if not IsPartNumber( X    , Y - 1) then
+           FindGearRatio(X + 1, Y - 1, Count, Result);
+           FindGearRatio(X - 1, Y    , Count, Result);
+           FindGearRatio(X + 1, Y    , Count, Result);
+  if not   FindGearRatio(X - 1, Y + 1, Count, Result) then
+  begin
+    if not FindGearRatio(X    , Y + 1, Count, Result) then
+           FindGearRatio(X + 1, Y + 1, Count, Result);
+  end
+  else
+    if not IsPartNumber( X    , Y + 1) then
+           FindGearRatio(X + 1, Y + 1, Count, Result);
+  if Count <> 2 then
+    Result := 0;
+end;
+
+var
+  X: Integer;
+  Y: Integer;
+  SumOfPartNumbers: Integer;
+  SumOfGearRatios: Integer;
 
 begin
   Input := TStringList.Create;
@@ -83,11 +138,14 @@ begin
     end;
     WriteLn('Part I: ', SumOfPartNumbers);
   { Part II }
-
-    WriteLn('Part II: ');
+    SumOfGearRatios := 0;
+    for Y := 0 to MaxY do
+      for X := 0 to MaxX do
+        if Data(X, Y) = '*' then
+          Inc(SumOfGearRatios, GearRatio(X, Y));
+    WriteLn('Part II: ', SumOfGearRatios);
   finally
     Input.Free;
   end;
   ReadLn;
 end.
-
