@@ -20,7 +20,6 @@ type
 
 var
   Input: TStringList;
-  Seeds: TStringDynArray;
   Maps: TObjectList<TMap>;
   MappingComparison: TComparison<TMapping>;
   DefaultCardinalComparer: IComparer<Cardinal>;
@@ -62,6 +61,28 @@ begin
     end;
 end;
 
+function GetLocation(Seed: Cardinal): Cardinal;
+var
+  Map: TMap;
+  I: Integer;
+begin
+  Result := Seed;
+  for Map in Maps do
+  begin
+    for I := 1 to Map.Count - 1 do
+      if Result < Map[I].Source then
+      begin
+        Result := Result - Map[I - 1].Source + Map[I - 1].Dest;
+        Break;
+      end;
+  end;
+end;
+
+var
+  Seeds: TStringDynArray;
+  S: String;
+  Locations: TList<Cardinal>;
+
 begin
   DefaultCardinalComparer := TComparer<Cardinal>.Default;
   MappingComparison :=
@@ -71,23 +92,24 @@ begin
     end;
   Input := TStringList.Create;
   Maps := TObjectList<TMap>.Create(True);
+  Locations := TList<Cardinal>.Create;
   try
     Input.LoadFromFile('input.txt');
   { Part I }
     Seeds := SplitString(Trim(Copy(Input[0], 7, 1000)), ' ');
     ReadMaps;
-    WriteLn(Maps.Count);
-    var I: Integer;
-    for I := 0 to Maps[0].Count - 1 do
-      WriteLn(Maps[0][I].Dest, ' ', Maps[1][I].Source, ' ', Maps[1][I].Range);
-
-    WriteLn('Part I: ');
+    for S in Seeds do
+      Locations.Add(GetLocation(StrToUInt(S)));
+    Locations.Sort;
+    WriteLn('Part I: ', Locations[0]);
   { Part II }
 
     WriteLn('Part II: ');
   finally
+    Locations.Free;
     Maps.Free;
     Input.Free;
   end;
   ReadLn;
 end.
+
