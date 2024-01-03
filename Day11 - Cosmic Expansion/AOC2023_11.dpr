@@ -4,31 +4,8 @@ program AOC2023_11;
 
 uses
   System.Classes,
-  System.Generics.Collections;
-
-type
-  TInt64Coord = record
-    X: Int64;
-    Y: Int64;
-    constructor Create(AX, AY: Int64);
-    function Distance(const ACoord: TInt64Coord): Int64;
-  end;
-
-function Coord(AX, AY: Int64): TInt64Coord;
-begin
-  Result := TInt64Coord.Create(AX, AY);
-end;
-
-constructor TInt64Coord.Create(AX, AY: Int64);
-begin
-  Self.X := AX;
-  Self.Y := AY;
-end;
-
-function TInt64Coord.Distance(const ACoord: TInt64Coord): Int64;
-begin
-  Result := Abs(ACoord.Y - Y) + Abs(ACoord.X - X);
-end;
+  System.Generics.Collections,
+  Aw.Types;
 
 var
   Input: TStringList;
@@ -88,14 +65,14 @@ begin
     SumOfShortestPathLengths := 0;
     for I := 0 to Galaxies.Count - 1 do
       for J := I + 1 to Galaxies.Count - 1 do
-        Inc(SumOfShortestPathLengths, Galaxies[I].Distance(Galaxies[J]));
+        Inc(SumOfShortestPathLengths, Galaxies[I].StepCountTo(Galaxies[J]));
     WriteLn('Part I: ', SumOfShortestPathLengths);
   { Part II }
     ReadGalaxies(1000000);
     SumOfShortestPathLengths := 0;
     for I := 0 to Galaxies.Count - 1 do
       for J := I + 1 to Galaxies.Count - 1 do
-        Inc(SumOfShortestPathLengths, Galaxies[I].Distance(Galaxies[J]));
+        Inc(SumOfShortestPathLengths, Galaxies[I].StepCountTo(Galaxies[J]));
     WriteLn('Part II: ', SumOfShortestPathLengths);
   finally
     Galaxies.Free;
