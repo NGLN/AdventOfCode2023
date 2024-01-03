@@ -24,7 +24,7 @@ begin
   Result := True;
 end;
 
-function EmptyRow(Row: String): Boolean;
+function EmptyRow(const Row: String): Boolean;
 begin
   Result := Row = StringOfChar('.', Length(Input[0]));
 end;

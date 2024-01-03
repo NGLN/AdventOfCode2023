@@ -10,28 +10,8 @@ uses
   System.Generics.Collections,
   System.Generics.Defaults,
   System.Math,
-  Vcl.Graphics;
-
-type
-  TCoord = record
-    X: Integer;
-    Y: Integer;
-    constructor Create(AX, AY: Integer);
-    function Equals(ACoord: TCoord): Boolean;
-  end;
-
-{ TCoord }
-
-constructor TCoord.Create(AX, AY: Integer);
-begin
-  Self.X := AX;
-  Self.Y := AY;
-end;
-
-function TCoord.Equals(ACoord: TCoord): Boolean;
-begin
-  Result := (ACoord.X = X) and (ACoord.Y = Y);
-end;
+  Vcl.Graphics,
+  Aw.Types;
 
 type
   TGrid = array of array of Char;
@@ -63,7 +43,7 @@ begin
     for X := 0 to ColCount - 1 do
       if Grid[X, Y] = 'S' then
       begin
-        Result := TCoord.Create(X, Y);
+        Result := Coord(X, Y);
         Exit;
       end
 end;
@@ -72,29 +52,29 @@ function NextMove(const AFrom, AVia: TCoord; LeaveTrace: Boolean): TCoord;
 begin
   case Grid[AVia.X, AVia.Y] of
     '|', 'V': if AFrom.Y < AVia.Y then
-           Result := TCoord.Create(AVia.X, AVia.Y + 1)
+           Result := Coord(AVia.X, AVia.Y + 1)
          else
-           Result := TCoord.Create(AVia.X, AVia.Y - 1);
+           Result := Coord(AVia.X, AVia.Y - 1);
     '-', 'H': if AFrom.X < AVia.X then
-           Result := TCoord.Create(AVia.X + 1, AVia.Y)
+           Result := Coord(AVia.X + 1, AVia.Y)
          else
-           Result := TCoord.Create(AVia.X - 1, AVia.Y);
+           Result := Coord(AVia.X - 1, AVia.Y);
     'L': if AFrom.X = AVia.X then
-           Result := TCoord.Create(AVia.X + 1, AVia.Y)
+           Result := Coord(AVia.X + 1, AVia.Y)
          else
-           Result := TCoord.Create(AVia.X, AVia.Y - 1);
+           Result := Coord(AVia.X, AVia.Y - 1);
     'J': if AFrom.X = AVia.X then
-           Result := TCoord.Create(AVia.X - 1, AVia.Y)
+           Result := Coord(AVia.X - 1, AVia.Y)
          else
-           Result := TCoord.Create(AVia.X, AVia.Y - 1);
+           Result := Coord(AVia.X, AVia.Y - 1);
     '7': if AFrom.X = AVia.X then
-           Result := TCoord.Create(AVia.X - 1, AVia.Y)
+           Result := Coord(AVia.X - 1, AVia.Y)
          else
-           Result := TCoord.Create(AVia.X, AVia.Y + 1);
+           Result := Coord(AVia.X, AVia.Y + 1);
     'F': if AFrom.X = AVia.X then
-           Result := TCoord.Create(AVia.X + 1, AVia.Y)
+           Result := Coord(AVia.X + 1, AVia.Y)
          else
-           Result := TCoord.Create(AVia.X, AVia.Y + 1);
+           Result := Coord(AVia.X, AVia.Y + 1);
   end;
   if LeaveTrace then
     Grid[AVia.X, AVia.Y] := 'S';
@@ -104,8 +84,8 @@ procedure WalkPath(LeaveTrace: Boolean);
 begin
   Prev1 := FindStart;
   Prev2 := Prev1;
-  Current1 := TCoord.Create(Prev1.X - 1, Prev1.Y);
-  Current2 := TCoord.Create(Prev2.X, Prev2.Y + 1);
+  Current1 := Coord(Prev1.X - 1, Prev1.Y);
+  Current2 := Coord(Prev2.X, Prev2.Y + 1);
   StepCount := 1;
   while not Current1.Equals(Current2) do
   begin
