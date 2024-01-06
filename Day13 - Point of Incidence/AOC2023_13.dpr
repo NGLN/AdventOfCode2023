@@ -12,12 +12,14 @@ var
   Pattern: TStringList;
   Line: String;
   SumOfPatternNotes: Integer;
+  PartII: Boolean;
 
 type
   TStringListHelper = class helper for TStringList
     function ColCount: Integer;
     function RowCount: Integer;
     procedure TransposeTo(AStringList: TStringList);
+    function Mirrored(ARowCount, SmudgeCount: Integer): Boolean;
   end;
 
 { TStringListHelper }
@@ -35,26 +37,45 @@ begin
   end;
 end;
 
+function TStringListHelper.Mirrored(ARowCount, SmudgeCount: Integer): Boolean;
+var
+  I: Integer;
+  J: Integer;
+  K: Integer;
+  Smudges: Integer;
+begin
+  I := ARowCount - 1;
+  J := I + 1;
+  Smudges := 0;
+  while (Smudges <= SmudgeCount) and (I >= 0) and (J < Count) do
+  begin
+    for K := 1 to Length(Strings[0]) do
+      if Strings[I][K] <> Strings[J][K] then
+        Inc(Smudges);
+    Dec(I);
+    Inc(J);
+  end;
+  Result := Smudges = SmudgeCount;
+end;
+
 function TStringListHelper.RowCount: Integer;
 var
   I: Integer;
-  Mirrored: Boolean;
-  Offset: Integer;
 begin
   Result := 0;
-  for I := 0 to Count - 2 do
-    if Strings[I] = Strings[I + 1] then
+  for I := 1 to Count - 1 do
+    if Mirrored(I, 0) then
     begin
-      Mirrored := True;
-      Offset := 1;
-      while Mirrored and (I - Offset >= 0) and (I + 1 + Offset < Count) do
-      begin
-        Mirrored := Strings[I - Offset] = Strings[I + 1 + Offset];
-        Inc(Offset);
-      end;
-      if Mirrored then
-        Exit(I + 1);
+      Result := I;
+      Break;
     end;
+  if PartII then
+  begin
+    for I := 1 to Count - 1 do
+      if Mirrored(I, 1) and (I <> Result) then
+        Exit(I);
+    Result := 0;
+  end;
 end;
 
 procedure TStringListHelper.TransposeTo(AStringList: TStringList);
@@ -89,13 +110,17 @@ begin
       end
       else
         Pattern.Add(Line);
+    PartII := False;
     SumOfPatternNotes := 0;    
     for Pattern in Patterns do
       Inc(SumOfPatternNotes, Pattern.ColCount + 100 * Pattern.RowCount);
     WriteLn('Part I: ', SumOfPatternNotes);
   { Part II }
-
-    WriteLn('Part II: ');
+    PartII := True;
+    SumOfPatternNotes := 0;    
+    for Pattern in Patterns do
+      Inc(SumOfPatternNotes, Pattern.ColCount + 100 * Pattern.RowCount);
+    WriteLn('Part II: ', SumOfPatternNotes);
   finally
     Patterns.Free;
     Input.Free;
