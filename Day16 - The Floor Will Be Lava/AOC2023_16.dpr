@@ -5,7 +5,8 @@ program AOC2023_16;
 uses
   System.Classes,
   System.SysUtils,
-  Aw.Types;
+  Aw.Types,
+  System.Math;
 
 type
   TWind = (N, E, S, W);
@@ -20,6 +21,7 @@ var
   RowCount: Integer;
   Start: TCoord;
   Dir: TWind;
+  TotalEnergy: Integer;
 
 function InGrid(const ACoord: TCoord): Boolean;
 begin
@@ -88,7 +90,7 @@ begin
   end;
 end;
 
-function TotalEnergy: Integer;
+function GetTotalEnergy: Integer;
 var
   X: Integer;
   Y: Integer;
@@ -98,6 +100,18 @@ begin
     for Y := 0 to RowCount - 1 do
       if Energy[X, Y] <> [] then
         Inc(Result);
+end;
+
+procedure Initialize(AX, AY: Integer; ADir: TWind);
+var
+  X: Integer;
+  Y: Integer;
+begin
+  for X := 0 to ColCount - 1 do
+    for Y := 0 to RowCount - 1 do
+      Energy[X, Y] := [];
+  Start := Coord(AX, AY);
+  Dir := ADir;
 end;
 
 begin
@@ -115,10 +129,28 @@ begin
     Start := Coord(0, 0);
     Dir := E;
     while Moving(Start, Dir) do;
-    WriteLn('Part I: ', TotalEnergy);
+    WriteLn('Part I: ', GetTotalEnergy);
   { Part II }
-
-    WriteLn('Part II: ');
+    TotalEnergy := 0;
+    for X := 0 to ColCount - 1 do
+    begin
+      Initialize(X, 0, S);
+      while Moving(Start, Dir) do;
+      TotalEnergy := Max(TotalEnergy, GetTotalEnergy);
+      Initialize(X, RowCount - 1, N);
+      while Moving(Start, Dir) do;
+      TotalEnergy := Max(TotalEnergy, GetTotalEnergy);
+    end;
+    for Y := 0 to RowCount - 1 do
+    begin
+      Initialize(0, Y, E);
+      while Moving(Start, Dir) do;
+      TotalEnergy := Max(TotalEnergy, GetTotalEnergy);
+      Initialize(ColCount - 1, Y, W);
+      while Moving(Start, Dir) do;
+      TotalEnergy := Max(TotalEnergy, GetTotalEnergy);
+    end;
+    WriteLn('Part II: ', TotalEnergy);
   finally
     Input.Free;
   end;
