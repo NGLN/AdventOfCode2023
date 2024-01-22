@@ -85,8 +85,8 @@ begin
   Input := TStringList.Create;
   Coords := TList<TCoord>.Create;
   try
-    Input.LoadFromFile('input.txt');
-//    Input.LoadFromFile('example.txt');
+//    Input.LoadFromFile('input.txt');
+    Input.LoadFromFile('example.txt');
   { Part I }
     ReadCoords(False);
     WriteLn('DigCount = ', DigCount);
@@ -98,6 +98,9 @@ begin
     WriteLn('Part II: ', Volume2);
 
     // BUT 177243763228642 is too high ?!?!?!?
+    // Example gives 952408144134
+    //    instead of 952408144115
+    // Why 19 short?
 
   finally
     Coords.Free;
